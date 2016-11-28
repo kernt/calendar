@@ -10,15 +10,15 @@ LABEL                   support="caldav AT cime.net"
 LABEL                   version="2.1"
 
 
-### "set-locale"
-RUN                     locale-gen en_US.UTF-8 && \
-                        update-locale LANG=en_US.UTF-8 && \
-                        update-locale LANGUAGE=en_US.UTF-8 && \
-                        update-locale LC_ALL=en_US.UTF-8
+### "set-locale" changed for use in gearman #### 
+RUN                     locale-gen de_DE.UTF-8 && \
+                        update-locale LANG=de_DE.UTF-8 && \
+                        update-locale LANGUAGE=de_DE.UTF-8 && \
+                        update-locale LC_ALL=de_DE.UTF-8
 
-ENV                     LANG en_US.UTF-8
-ENV                     LANGUAGE en_US:en
-ENV                     LC_ALL en_US.UTF-8
+ENV                     LANG de_DE.UTF-8
+ENV                     LANGUAGE de_DE:de
+ENV                     LC_ALL de_DE.UTF-8
 ENV                     TERM=xterm
 
 
@@ -29,8 +29,7 @@ RUN                     echo "APT::Get::Assume-Yes true;" >> /etc/apt/apt.conf.d
                         apt-get update
 
 
-### "configure-postfix"
-#
+### "configure-postfix" ####
 # These parameters are specific to your own Postfix relay!  Use your host and domain
 # names.
 RUN                     echo "postfix postfix/mailname string calendar.example.org" | debconf-set-selections && \
@@ -38,22 +37,9 @@ RUN                     echo "postfix postfix/mailname string calendar.example.o
                         echo "postfix postfix/relayhost string smtpcal.example.org" | debconf-set-selections && \
                         echo "postfix postfix/root_address string cal-bounce@example.org" | debconf-set-selections
 
-
-### "system-requirements"
-RUN                     apt-get install apache2
-RUN                     apt-get install curl
-RUN                     apt-get install postfix 
-RUN                     apt-get install mailutils
-RUN                     apt-get install rsyslog
-RUN                     apt-get install sqlite3
-RUN                     apt-get install php
-RUN                     apt-get install libapache2-mod-php
-RUN                     apt-get install php-date
-RUN                     apt-get install php-dom
-RUN                     apt-get install php-mbstring
-RUN                     apt-get install php-sqlite3
-RUN                     apt-get install unzip
-
+### "system-requirements" short version 
+RUN                     apt-get install apache2 curl postfix mailutils rsyslog sqlite3 php libapache2-mod-php php-date \
+php-dom php-mbstring php-sqlite3 unzip 
 
 ### "Baikal-installation"
 WORKDIR                 /var/www
@@ -66,7 +52,6 @@ RUN                     rm -Rvf /var/www/calendar_server/Specific/db/.empty
 # https://groups.google.com/forum/#!searchin/sabredav-discuss/scheduling|sort:relevance/sabredav-discuss/CrGZXqw4sRw/vsHYq6FDcnkJ
 # This needs to be patched on the Baikal start up Server.php, NOT in the SabreDAV server.
 COPY                    resources/Server.php /var/www/calendar_server/Core/Frameworks/Baikal/Core/Server.php
-
 COPY                    resources/baikal.apache2 /var/www/calendar_server/Specific/virtualhosts/baikal.apache2
 COPY                    cal_infox.php /var/www/calendar_server/html/
 
@@ -79,7 +64,6 @@ COPY                    cal_infox.php /var/www/calendar_server/html/
 # COPY                    resources/config.php /var/www/calendar_server/Specific/
 # COPY                    resources/config.system.php /var/www/calendar_server/Specific/
 
-
 WORKDIR                 /var/www/calendar_server
 RUN                     chown -Rf www-data:www-data Specific
 
@@ -88,7 +72,6 @@ RUN                     /etc/init.d/apache2 stop ; a2enmod rewrite
 RUN                     mv -f 000-default.conf ..
 RUN                     ln -s /var/www/calendar_server/Specific/virtualhosts/baikal.apache2 000-default.conf
 RUN                     echo "error_log = syslog" >> /etc/php/7.0/apache2/php.ini
-
 
 ### "web-server-configuration-and-launch"
 WORKDIR                 /
